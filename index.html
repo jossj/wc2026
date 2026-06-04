@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>FIFA World Cup 2026 – Host Venues</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 /* ── Base ─────────────────────────────────────────────────────────────────── */
@@ -76,6 +77,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Segoe UI', Arial, san
 
 /* ── Team search bar ─────────────────────────────────────────────────────── */
 #team-bar { background: #0a1a2e; }
+#team-bar { overflow: visible; z-index: 500; }
 #team-search-wrap { position: relative; flex-shrink: 0; }
 #team-search {
   background: #152840; border: 1.5px solid #2e5070; border-radius: 14px;
@@ -722,10 +724,11 @@ const FLAG_ISO = {
   FRA:"fr",SEN:"sn",IRQ:"iq",NOR:"no",ARG:"ar",ALG:"dz",AUT:"at",JOR:"jo",
   POR:"pt",COD:"cd",UZB:"uz",COL:"co",ENG:"gb-eng",CRO:"hr",GHA:"gh",PAN:"pa",
 };
-function flagImg(code, size=40) {
+function flagImg(code) {
   const iso = FLAG_ISO[code];
-  if (!iso) return '<span style="font-size:28px">🏳</span>';
-  return `<img src="https://flagcdn.com/w${size}/${iso}.png" width="${size}" style="border-radius:3px;display:block" alt="${code}">`;
+  if (!iso) return `<span style="font-size:28px;line-height:1">🏳</span>`;
+  // flag-icons uses fi-{iso2} for standard, fi-{iso}-{region} for sub-national
+  return `<span class="fi fi-${iso}" style="font-size:48px;border-radius:4px;display:block"></span>`;
 }
 const TEAM_NAMES = {};
 TEAMS.forEach(t => { TEAM_NAMES[t.code] = t.name; });
@@ -974,12 +977,12 @@ function openMatchPanel(matchNum) {
   const teamsHTML = m.t2
     ? `<div class="mp-teams">
         <div class="mp-team">
-          <span class="mp-team-flag">${flagImg(m.t1, 48)}</span>
+          <span class="mp-team-flag">${flagImg(m.t1)}</span>
           <span class="mp-team-name">${t1Name}</span>
         </div>
         <div class="mp-vs">vs</div>
         <div class="mp-team">
-          <span class="mp-team-flag">${flagImg(m.t2, 48)}</span>
+          <span class="mp-team-flag">${flagImg(m.t2)}</span>
           <span class="mp-team-name">${t2Name}</span>
         </div>
       </div>`
