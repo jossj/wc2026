@@ -203,6 +203,132 @@ html, body { height: 100%; overflow: hidden; font-family: 'Segoe UI', Arial, san
 }
 .marker-dimmed { opacity: .25; filter: grayscale(80%); }
 
+/* ── Weather strip in popup ──────────────────────────────────────────────── */
+.weather-strip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 14px 8px;
+  border-bottom: 1px solid #1e3a55;
+  background: #091525;
+  flex-wrap: wrap;
+}
+.wx-icon  { font-size: 22px; line-height: 1; flex-shrink: 0; }
+.wx-temp  { font-size: 18px; font-weight: 800; color: #e8f0f8; }
+.wx-feels { font-size: 10px; color: #4a6a86; margin-top: 1px; }
+.wx-meta  { display: flex; flex-direction: column; }
+.wx-desc  { font-size: 11px; color: #a0b4c8; font-weight: 600; }
+.wx-wind  { font-size: 10px; color: #4a6a86; margin-top: 1px; }
+.wx-right { margin-left: auto; text-align: right; }
+.wx-humidity { font-size: 10px; color: #4a6a86; }
+.wx-precip   { font-size: 10px; color: #6baed6; }
+.wx-loading  { font-size: 10px; color: #4a6a86; padding: 6px 14px 8px; border-bottom: 1px solid #1e3a55; }
+.wx-error    { font-size: 10px; color: #5a3a3a; padding: 6px 14px 8px; border-bottom: 1px solid #1e3a55; }
+
+/* ── Match detail panel (slide-up) ──────────────────────────────────────── */
+#match-panel-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.55); z-index: 2000; backdrop-filter: blur(2px);
+}
+#match-panel-overlay.open { display: block; }
+#match-panel {
+  position: fixed; bottom: 0;
+  left: 50%; transform: translateX(-50%) translateY(100%);
+  width: 30%; min-width: 320px;
+  max-height: 85vh; background: #0d1e33;
+  border-radius: 16px 16px 0 0; border-top: 2px solid #c9a227;
+  box-shadow: 0 -8px 40px rgba(0,0,0,.7);
+  overflow-y: auto; z-index: 2001;
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
+}
+#match-panel.open { transform: translateX(-50%) translateY(0); }
+@media (max-width: 700px) {
+  #match-panel { width: 100%; min-width: 0; left: 0; transform: translateY(100%); }
+  #match-panel.open { transform: translateY(0); }
+}
+#match-panel::-webkit-scrollbar { width: 4px; }
+#match-panel::-webkit-scrollbar-thumb { background: #2e5070; border-radius: 2px; }
+
+/* Panel inner sections */
+.mp-handle {
+  width: 40px; height: 4px; background: #2e5070; border-radius: 2px;
+  margin: 10px auto 0; cursor: pointer;
+}
+.mp-header {
+  padding: 14px 20px 12px; border-bottom: 1px solid #1e3a55;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+}
+.mp-match-num { font-size: 11px; color: #4a6a86; font-weight: 600; margin-bottom: 4px; }
+.mp-teams {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 6px; flex-wrap: wrap;
+}
+.mp-team { text-align: center; }
+.mp-team-flag  { display: flex; justify-content: center; margin-bottom: 4px; }
+.mp-team-code  { font-size: 18px; font-weight: 900; color: #e8f0f8; margin-top: 4px; display: block; }
+.mp-team-name  { font-size: 10px; color: #7a9ab8; display: block; margin-top: 1px; }
+.mp-vs         { font-size: 20px; font-weight: 900; color: #2e5070; }
+.mp-close {
+  background: none; border: 1px solid #2e5070; color: #7a9ab8;
+  border-radius: 50%; width: 28px; height: 28px; font-size: 14px;
+  cursor: pointer; flex-shrink: 0; transition: all .15s; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.mp-close:hover { border-color: #c9a227; color: #c9a227; }
+
+/* Info grid */
+.mp-section { padding: 14px 20px; border-bottom: 1px solid #1e3a55; }
+.mp-section-title {
+  font-size: 10px; font-weight: 700; color: #4a6a86;
+  text-transform: uppercase; letter-spacing: .8px; margin-bottom: 10px;
+}
+.mp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mp-cell-label { font-size: 9px; color: #4a6a86; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+.mp-cell-val   { font-size: 13px; font-weight: 700; color: #e8f0f8; }
+.mp-cell-sub   { font-size: 10px; color: #7a9ab8; margin-top: 1px; }
+.mp-time-venue { color: #c9a227; }
+.mp-time-user  { color: #6baed6; }
+
+/* Stadium card */
+.mp-stadium {
+  display: flex; align-items: center; gap: 14px;
+  background: #091525; border-radius: 8px; padding: 12px 14px;
+}
+.mp-stadium-icon { font-size: 32px; flex-shrink: 0; }
+.mp-stadium-name { font-size: 14px; font-weight: 700; color: #e8f0f8; }
+.mp-stadium-city { font-size: 10px; color: #7a9ab8; margin-top: 2px; }
+.mp-capacity {
+  margin-left: auto; text-align: right; flex-shrink: 0;
+}
+.mp-capacity-num   { font-size: 16px; font-weight: 800; color: #c9a227; }
+.mp-capacity-label { font-size: 9px; color: #4a6a86; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+
+/* Stage badge in panel */
+.mp-stage-badge {
+  display: inline-block; border-radius: 10px; padding: 2px 10px;
+  font-size: 11px; font-weight: 700;
+}
+
+/* Weather in panel */
+.mp-weather {
+  display: grid; grid-template-columns: auto 1fr 1fr;
+  gap: 12px; align-items: center;
+  background: #091525; border-radius: 8px; padding: 12px 14px;
+}
+.mp-wx-main { display: flex; align-items: center; gap: 10px; }
+.mp-wx-emoji { font-size: 40px; line-height: 1; }
+.mp-wx-tmp   { font-size: 28px; font-weight: 900; color: #e8f0f8; }
+.mp-wx-feels { font-size: 10px; color: #4a6a86; margin-top: 2px; }
+.mp-wx-desc  { font-size: 12px; font-weight: 600; color: #a0b4c8; }
+.mp-wx-wind  { font-size: 11px; color: #6a8aaa; margin-top: 3px; }
+.mp-wx-stat  { text-align: center; }
+.mp-wx-stat-val   { font-size: 14px; font-weight: 700; color: #c0d4e8; }
+.mp-wx-stat-label { font-size: 9px; color: #4a6a86; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+#mp-weather-area .wx-loading,
+#mp-weather-area .wx-error { padding: 10px 0; border: none; background: none; }
+
+/* Make match rows in popup look clickable */
+.match-row { cursor: pointer; border-radius: 4px; }
+.match-row:hover { background: #152840; }
+.match-row-hint { font-size: 8px; color: #2e5070; text-align: right; margin-top: 3px; }
+
 /* ── Legend ──────────────────────────────────────────────────────────────── */
 .legend { background: #0f2035; border: 1px solid #1e3a55; border-radius: 8px; padding: 8px 12px; font-size: 11px; color: #c0d4e8; line-height: 1.8; }
 .legend-item { display: flex; align-items: center; gap: 7px; }
@@ -282,6 +408,28 @@ html, body { height: 100%; overflow: hidden; font-family: 'Segoe UI', Arial, san
   <div id="map"></div>
 
 </div><!-- end #page -->
+
+<!-- ── Match detail panel ─────────────────────────────────────────────────── -->
+<div id="match-panel-overlay"></div>
+<div id="match-panel" role="dialog" aria-modal="true">
+  <div class="mp-handle" id="mp-handle"></div>
+  <div class="mp-header">
+    <div id="mp-header-content"></div>
+    <button class="mp-close" id="mp-close" title="Close">✕</button>
+  </div>
+  <div class="mp-section" id="mp-time-section">
+    <div class="mp-section-title">Kick-off times</div>
+    <div class="mp-grid" id="mp-times"></div>
+  </div>
+  <div class="mp-section">
+    <div class="mp-section-title">Venue</div>
+    <div id="mp-stadium-card"></div>
+  </div>
+  <div class="mp-section" id="mp-weather-section">
+    <div class="mp-section-title">Current conditions at venue</div>
+    <div id="mp-weather-area"><div class="wx-loading">⏳ Loading weather…</div></div>
+  </div>
+</div>
 
 <script>
 // ── Venue & time data ─────────────────────────────────────────────────────────
@@ -477,6 +625,111 @@ const TEAMS = [
 const teamMatchCount = {};
 TEAMS.forEach(t => { teamMatchCount[t.code] = MATCHES.filter(m => m.t1===t.code||m.t2===t.code).length; });
 
+// ── Weather ───────────────────────────────────────────────────────────────────
+const wxCache = {};   // venueName → {data, ts}
+const WX_TTL  = 10 * 60 * 1000; // 10 min cache
+
+// WMO weather code → { emoji, label }
+const WMO = {
+  0:{e:'☀️',l:'Clear'},1:{e:'🌤️',l:'Mainly clear'},2:{e:'⛅',l:'Partly cloudy'},3:{e:'☁️',l:'Overcast'},
+  45:{e:'🌫️',l:'Fog'},48:{e:'🌫️',l:'Icy fog'},
+  51:{e:'🌦️',l:'Light drizzle'},53:{e:'🌦️',l:'Drizzle'},55:{e:'🌧️',l:'Heavy drizzle'},
+  61:{e:'🌧️',l:'Light rain'},63:{e:'🌧️',l:'Rain'},65:{e:'🌧️',l:'Heavy rain'},
+  71:{e:'🌨️',l:'Light snow'},73:{e:'❄️',l:'Snow'},75:{e:'❄️',l:'Heavy snow'},77:{e:'🌨️',l:'Snow grains'},
+  80:{e:'🌦️',l:'Showers'},81:{e:'🌧️',l:'Heavy showers'},82:{e:'⛈️',l:'Violent showers'},
+  85:{e:'🌨️',l:'Snow showers'},86:{e:'❄️',l:'Heavy snow showers'},
+  95:{e:'⛈️',l:'Thunderstorm'},96:{e:'⛈️',l:'Thunderstorm + hail'},99:{e:'⛈️',l:'Thunderstorm + heavy hail'},
+};
+function wmoInfo(code) { return WMO[code] || {e:'🌡️', l:'Unknown'}; }
+
+async function fetchWeather(venue) {
+  const now = Date.now();
+  const cached = wxCache[venue.name];
+  if (cached && now - cached.ts < WX_TTL) return cached.data;
+
+  const url = `https://api.open-meteo.com/v1/forecast`
+    + `?latitude=${venue.lat}&longitude=${venue.lng}`
+    + `&current=temperature_2m,apparent_temperature,weathercode,windspeed_10m,winddirection_10m,precipitation,relative_humidity_2m`
+    + `&temperature_unit=celsius&windspeed_unit=kmh&timezone=auto`;
+
+  const res  = await fetch(url, { signal: AbortSignal.timeout(6000) });
+  if (!res.ok) throw new Error(`Weather API ${res.status}`);
+  const json = await res.json();
+  const c    = json.current;
+  const data = {
+    temp:     Math.round(c.temperature_2m),
+    feels:    Math.round(c.apparent_temperature),
+    code:     c.weathercode,
+    wind:     Math.round(c.windspeed_10m),
+    windDir:  c.winddirection_10m,
+    precip:   c.precipitation,
+    humidity: c.relative_humidity_2m,
+  };
+  wxCache[venue.name] = { data, ts: now };
+  return data;
+}
+
+function windArrow(deg) {
+  const dirs = ['N','NE','E','SE','S','SW','W','NW'];
+  return dirs[Math.round(deg / 45) % 8];
+}
+
+function renderWeatherStrip(wx) {
+  const { e, l } = wmoInfo(wx.code);
+  return `<div class="weather-strip">
+    <div class="wx-icon">${e}</div>
+    <div class="wx-meta">
+      <div class="wx-desc">${l}</div>
+      <div class="wx-wind">💨 ${wx.wind} km/h ${windArrow(wx.windDir)}</div>
+    </div>
+    <div style="text-align:center">
+      <div class="wx-temp">${wx.temp}°C</div>
+      <div class="wx-feels">Feels ${wx.feels}°C</div>
+    </div>
+    <div class="wx-right">
+      <div class="wx-humidity">💧 ${wx.humidity}%</div>
+      ${wx.precip > 0 ? `<div class="wx-precip">🌧 ${wx.precip} mm</div>` : ''}
+    </div>
+  </div>`;
+}
+
+// ── Stadium data ──────────────────────────────────────────────────────────────
+const STADIUMS = {
+  "Vancouver":             { name:"BC Place",               city:"Vancouver, BC",            capacity:54500 },
+  "Seattle":               { name:"Lumen Field",            city:"Seattle, WA",              capacity:68740 },
+  "San Francisco Bay Area":{ name:"Levi's Stadium",         city:"Santa Clara, CA",          capacity:68500 },
+  "Los Angeles":           { name:"SoFi Stadium",           city:"Inglewood, CA",            capacity:70240 },
+  "Guadalajara":           { name:"Estadio Akron",          city:"Zapopan, Mexico",          capacity:49850 },
+  "Mexico City":           { name:"Estadio Azteca",         city:"Mexico City, Mexico",      capacity:87523 },
+  "Monterrey":             { name:"Estadio BBVA",           city:"Guadalupe, Mexico",        capacity:53500 },
+  "Houston":               { name:"NRG Stadium",            city:"Houston, TX",              capacity:72220 },
+  "Dallas":                { name:"AT&T Stadium",           city:"Arlington, TX",            capacity:80000 },
+  "Kansas City":           { name:"Arrowhead Stadium",      city:"Kansas City, MO",          capacity:76416 },
+  "Atlanta":               { name:"Mercedes-Benz Stadium",  city:"Atlanta, GA",              capacity:71000 },
+  "Miami":                 { name:"Hard Rock Stadium",      city:"Miami Gardens, FL",        capacity:65326 },
+  "Toronto":               { name:"BMO Field",              city:"Toronto, ON",              capacity:45736 },
+  "Boston":                { name:"Gillette Stadium",       city:"Foxborough, MA",           capacity:65878 },
+  "Philadelphia":          { name:"Lincoln Financial Field",city:"Philadelphia, PA",         capacity:67594 },
+  "New York / New Jersey": { name:"MetLife Stadium",        city:"East Rutherford, NJ",      capacity:82500 },
+};
+
+// ── Team flag images (flagcdn.com — works on all platforms including Windows) ──
+const FLAG_ISO = {
+  MEX:"mx",RSA:"za",KOR:"kr",CZE:"cz",CAN:"ca",BIH:"ba",QAT:"qa",SUI:"ch",
+  BRA:"br",MAR:"ma",HAI:"ht",SCO:"gb-sct",USA:"us",PAR:"py",AUS:"au",TUR:"tr",
+  GER:"de",CUW:"cw",CIV:"ci",ECU:"ec",NED:"nl",JPN:"jp",SWE:"se",TUN:"tn",
+  BEL:"be",EGY:"eg",IRN:"ir",NZL:"nz",ESP:"es",CPV:"cv",KSA:"sa",URU:"uy",
+  FRA:"fr",SEN:"sn",IRQ:"iq",NOR:"no",ARG:"ar",ALG:"dz",AUT:"at",JOR:"jo",
+  POR:"pt",COD:"cd",UZB:"uz",COL:"co",ENG:"gb-eng",CRO:"hr",GHA:"gh",PAN:"pa",
+};
+function flagImg(code, size=40) {
+  const iso = FLAG_ISO[code];
+  if (!iso) return '<span style="font-size:28px">🏳</span>';
+  return `<img src="https://flagcdn.com/w${size}/${iso}.png" width="${size}" style="border-radius:3px;display:block" alt="${code}">`;
+}
+const TEAM_NAMES = {};
+TEAMS.forEach(t => { TEAM_NAMES[t.code] = t.name; });
+
 // ── State ─────────────────────────────────────────────────────────────────────
 let activeFilter = 'all';
 let activeTeam   = null;
@@ -547,13 +800,14 @@ function buildPopup(v) {
       timesHTML += `<div style="text-align:center;font-size:8px;color:#3a5a76;margin-top:1px">(your date: ${ud})</div>`;
     }
 
-    return `<div class="match-row">
+    return `<div class="match-row" onclick="openMatchPanel(${m.n})" title="View match details">
       <div class="match-meta">
         <span class="match-num">#${m.n}</span>
         <span class="match-date">${m.date}</span>
         <span class="match-stage ${sc}">${m.stage}</span>${badge}
       </div>
       ${teams}${timesHTML}
+      <div class="match-row-hint">Tap for details →</div>
     </div>`;
   }).join('');
 
@@ -562,6 +816,7 @@ function buildPopup(v) {
     <div class="popup-country">${v.country}</div>
     <div class="popup-count">${filtered.length} match${filtered.length!==1?'es':''} shown${filtered.length<total?` · ${total} total`:''}</div>
   </div>
+  <div id="wx-${v.name.replace(/[^a-z0-9]/gi,'_')}" class="wx-loading">⏳ Loading weather…</div>
   <div class="popup-matches">${rows}</div>`;
 }
 
@@ -573,8 +828,20 @@ VENUES.forEach(v => {
     .bindPopup('', {maxWidth:360, minWidth:260});
   marker._vd = v;
   marker.on('click', function() {
-    const c = buildPopup(this._vd);
-    if (c) { this.setPopupContent(c); this.openPopup(); }
+    const vd = this._vd;
+    const c = buildPopup(vd);
+    if (!c) return;
+    this.setPopupContent(c);
+    this.openPopup();
+    // Inject weather asynchronously into the placeholder
+    const wxId = 'wx-' + vd.name.replace(/[^a-z0-9]/gi,'_');
+    fetchWeather(vd).then(wx => {
+      const el = document.getElementById(wxId);
+      if (el) el.outerHTML = renderWeatherStrip(wx);
+    }).catch(() => {
+      const el = document.getElementById(wxId);
+      if (el) { el.className = 'wx-error'; el.textContent = '⚠️ Weather unavailable'; }
+    });
   });
   const count = (venueMatches[v.name]||[]).length;
   marker.bindTooltip(`<b>${v.flag} ${v.name}</b><br>${count} matches`,{direction:'top',offset:[0,-30]});
@@ -600,7 +867,21 @@ function refreshMarkers() {
     marker.getElement()?.classList.toggle('marker-dimmed', count===0);
     if (marker.isPopupOpen()) {
       const c = buildPopup(marker._vd);
-      c ? marker.setPopupContent(c) : marker.closePopup();
+      if (!c) { marker.closePopup(); return; }
+      marker.setPopupContent(c);
+      // Re-inject weather from cache if available, else refetch
+      const vd   = marker._vd;
+      const wxId = 'wx-' + vd.name.replace(/[^a-z0-9]/gi,'_');
+      const cached = wxCache[vd.name];
+      if (cached) {
+        const el = document.getElementById(wxId);
+        if (el) el.outerHTML = renderWeatherStrip(cached.data);
+      } else {
+        fetchWeather(vd).then(wx => {
+          const el = document.getElementById(wxId);
+          if (el) el.outerHTML = renderWeatherStrip(wx);
+        }).catch(() => {});
+      }
     }
   });
 }
@@ -655,6 +936,148 @@ chipClearBtn.addEventListener('click', clearTeam);
 document.addEventListener('click', e => {
   if (!document.getElementById('team-search-wrap').contains(e.target)) dropdown.style.display='none';
 });
+
+// ── Match detail panel ────────────────────────────────────────────────────────
+const panel        = document.getElementById('match-panel');
+const overlay      = document.getElementById('match-panel-overlay');
+const mpClose      = document.getElementById('mp-close');
+const mpHandle     = document.getElementById('mp-handle');
+
+function closePanel() {
+  panel.classList.remove('open');
+  overlay.classList.remove('open');
+}
+mpClose.addEventListener('click', closePanel);
+mpHandle.addEventListener('click', closePanel);
+overlay.addEventListener('click', closePanel);
+
+// Swipe down to close
+let touchStartY = 0;
+panel.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, {passive:true});
+panel.addEventListener('touchend',   e => {
+  if (e.changedTouches[0].clientY - touchStartY > 60) closePanel();
+}, {passive:true});
+
+function openMatchPanel(matchNum) {
+  const m = MATCHES.find(x => x.n === matchNum);
+  if (!m) return;
+
+  const venue   = VENUES.find(v => v.name === m.venue);
+  const stadium = STADIUMS[m.venue] || { name: m.venue, city: '', capacity: 0 };
+  const sc      = STAGE_CLASS[m.stage] || 'stage-group';
+  const badge   = m.group ? `<span class="group-highlight" style="background:${GROUP_COLOURS[m.group]}">Group ${m.group}</span>` : '';
+
+  // Teams
+  const t1Name = TEAM_NAMES[m.t1] || m.t1;
+  const t2Name = TEAM_NAMES[m.t2] || m.t2;
+
+  const teamsHTML = m.t2
+    ? `<div class="mp-teams">
+        <div class="mp-team">
+          <span class="mp-team-flag">${flagImg(m.t1, 48)}</span>
+          <span class="mp-team-name">${t1Name}</span>
+        </div>
+        <div class="mp-vs">vs</div>
+        <div class="mp-team">
+          <span class="mp-team-flag">${flagImg(m.t2, 48)}</span>
+          <span class="mp-team-name">${t2Name}</span>
+        </div>
+      </div>`
+    : `<div class="mp-teams"><div class="mp-team"><span class="mp-team-name" style="font-size:16px">${t1Name}</span></div></div>`;
+
+  document.getElementById('mp-header-content').innerHTML = `
+    <div class="mp-match-num">Match #${m.n} &nbsp;·&nbsp; <span class="match-stage ${sc} mp-stage-badge">${m.stage}</span> ${badge}</div>
+    ${teamsHTML}`;
+
+  // Times
+  let timesHTML = '';
+  if (venue) {
+    const utcMs = matchToUTC(m.date, m.time, venue.utcOffset);
+    const vt    = formatTime(utcMs, venueIANA(venue));
+    const ut    = formatTime(utcMs, USER_TZ);
+    const ud    = formatDateShort(utcMs, USER_TZ);
+
+    timesHTML = `
+      <div>
+        <div class="mp-cell-label">Date</div>
+        <div class="mp-cell-val">${m.date}</div>
+      </div>
+      <div>
+        <div class="mp-cell-label">Venue time (${venue.tz})</div>
+        <div class="mp-cell-val mp-time-venue">${vt}</div>
+        <div class="mp-cell-sub">${venue.tzLabel}</div>
+      </div>
+      <div>
+        <div class="mp-cell-label">Your time (${USER_TZ_SHORT})</div>
+        <div class="mp-cell-val mp-time-user">${ut}</div>
+        <div class="mp-cell-sub">${ud}</div>
+      </div>`;
+  }
+  document.getElementById('mp-times').innerHTML = timesHTML;
+
+  // Stadium
+  document.getElementById('mp-stadium-card').innerHTML = `
+    <div class="mp-stadium">
+      <div class="mp-stadium-icon">🏟️</div>
+      <div>
+        <div class="mp-stadium-name">${stadium.name}</div>
+        <div class="mp-stadium-city">${stadium.city}</div>
+      </div>
+      <div class="mp-capacity">
+        <div class="mp-capacity-num">${stadium.capacity.toLocaleString()}</div>
+        <div class="mp-capacity-label">Capacity</div>
+      </div>
+    </div>`;
+
+  // Weather — use cache if available, else fetch
+  const wxArea = document.getElementById('mp-weather-area');
+  wxArea.innerHTML = '<div class="wx-loading">⏳ Loading weather…</div>';
+
+  if (venue) {
+    const cached = wxCache[venue.name];
+    if (cached) {
+      wxArea.innerHTML = buildPanelWeather(cached.data);
+    } else {
+      fetchWeather(venue).then(wx => {
+        wxArea.innerHTML = buildPanelWeather(wx);
+      }).catch(() => {
+        wxArea.innerHTML = '<div class="wx-error">⚠️ Weather unavailable</div>';
+      });
+    }
+  }
+
+  // Open
+  panel.classList.add('open');
+  overlay.classList.add('open');
+  panel.scrollTop = 0;
+}
+
+function buildPanelWeather(wx) {
+  const { e, l } = wmoInfo(wx.code);
+  return `<div class="mp-weather">
+    <div class="mp-wx-main">
+      <div class="mp-wx-emoji">${e}</div>
+      <div>
+        <div class="mp-wx-tmp">${wx.temp}°C</div>
+        <div class="mp-wx-feels">Feels ${wx.feels}°C</div>
+      </div>
+    </div>
+    <div>
+      <div class="mp-wx-desc">${l}</div>
+      <div class="mp-wx-wind">💨 ${wx.wind} km/h ${windArrow(wx.windDir)}</div>
+    </div>
+    <div style="display:flex;gap:16px;justify-content:flex-end">
+      <div class="mp-wx-stat">
+        <div class="mp-wx-stat-val">💧 ${wx.humidity}%</div>
+        <div class="mp-wx-stat-label">Humidity</div>
+      </div>
+      ${wx.precip > 0 ? `<div class="mp-wx-stat">
+        <div class="mp-wx-stat-val">🌧 ${wx.precip}mm</div>
+        <div class="mp-wx-stat-label">Precip.</div>
+      </div>` : ''}
+    </div>
+  </div>`;
+}
 
 // ── Group buttons ─────────────────────────────────────────────────────────────
 const groupLabel = document.getElementById('group-label');
