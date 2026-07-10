@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Race Day Report — 11 July 2026</title>
+<style>
+  @page { size: A3 landscape; margin: 10mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    margin: 0;
+    padding: 14px 18px;
+    background: #0b0f14;
+    color: #e6e9ec;
+  }
+  h1 {
+    font-size: 20px;
+    margin: 0 0 2px 0;
+    color: #fff;
+  }
+  .subtitle {
+    font-size: 11px;
+    color: #8a94a0;
+    margin-bottom: 12px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  .card {
+    background: #131920;
+    border: 1px solid #232b34;
+    border-radius: 6px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 10.5px;
+    color: #8a94a0;
+    border-bottom: 1px solid #232b34;
+    padding-bottom: 4px;
+  }
+  .card-header .venue { font-weight: 700; color: #cfd6dd; }
+  .tile {
+    background: linear-gradient(135deg, #1d3b2f, #16281f);
+    border: 1px solid #2e6b4c;
+    border-radius: 5px;
+    padding: 7px 8px;
+  }
+  .tile .label {
+    font-size: 8.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6fd39a;
+    margin-bottom: 2px;
+  }
+  .tile .horse-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.15;
+  }
+  .tile .meta-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #b7c2cc;
+    margin-top: 4px;
+  }
+  .tile .score {
+    font-size: 15px;
+    font-weight: 800;
+    color: #6fd39a;
+  }
+  .tile .rating {
+    font-size: 9px;
+    color: #cfe8d9;
+    margin-top: 3px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9px;
+  }
+  table th {
+    text-align: left;
+    color: #6c7684;
+    font-weight: 600;
+    padding: 2px 3px;
+    border-bottom: 1px solid #232b34;
+  }
+  table td {
+    padding: 2px 3px;
+    border-bottom: 1px solid #1a2028;
+    color: #c7cfd6;
+    white-space: nowrap;
+  }
+  table tr:last-child td { border-bottom: none; }
+  .wd { color: #6c7684; text-decoration: line-through; }
+  footer {
+    margin-top: 10px;
+    font-size: 9px;
+    color: #5a6472;
+    text-align: right;
+  }
+</style>
+</head>
+<body>
+  <h1>Race Day Report — Randwick &amp; Caulfield</h1>
+  <div class="subtitle">10–11 July 2026 · 19 races · Ranked by weighted composite form score (Racing Form Predictor) · Top tile excludes withdrawn (WD) runners</div>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>Generated from Ladbrokes race-card spreadsheets · Composite score = weighted blend of Going, Time, Form, Weight, Distance, RS Rating, Venue, Jockey</footer>
+
+<script>
+const races = [
+  {venue:"Randwick", race:"Race 1", dist:"1400m", cls:"Maiden", going:"Heavy", top:{horse:"Honniball Drive", no:8, jockey:"Jett Newman (a3)", composite:0.72, win:"48.0%", fo:"$1.75", rating:"⭐ Strong chance"}, rest:[
+    {horse:"Rumdabar",wd:true,no:2,composite:0.57,win:"10.7%",fo:"$21.00"},
+    {horse:"Defensemen",no:3,composite:0.57,win:"10.7%",fo:"$7.00"},
+    {horse:"Columbo",no:6,composite:0.52,win:"6.5%",fo:"$7.50"},
+    {horse:"Ultimate Warrior",no:7,composite:0.51,win:"5.9%",fo:"$10.00"},
+  ]},
+  {venue:"Randwick", race:"Race 2", dist:"1600m", cls:"Cl6", going:"Heavy", top:{horse:"Leovanni", no:16, jockey:"Unknown", composite:0.72, win:"19.0%", fo:"$1.60", rating:"⭐ Strong chance"}, rest:[
+    {horse:"Maples",wd:true,no:14,composite:0.73,win:"21.1%",fo:"$2.60"},
+    {horse:"Moon Sweeper",wd:true,no:1,composite:0.70,win:"15.6%",fo:"$2.25"},
+    {horse:"Dunstall The Gun",wd:true,no:6,composite:0.69,win:"14.1%",fo:"$2.70"},
+    {horse:"Saintly Sands",wd:true,no:8,composite:0.60,win:"5.7%",fo:"$6.50"},
+  ]},
+  {venue:"Randwick", race:"Race 3", dist:"1600m", cls:"Bm72", going:"Heavy", top:{horse:"Perfect Justice", no:3, jockey:"Siena Grima (a2)", composite:0.73, win:"17.8%", fo:"$2.60", rating:"⭐ Strong chance"}, rest:[
+    {horse:"Murphilly",wd:true,no:7,composite:0.77,win:"26.6%",fo:"$3.10"},
+    {horse:"All Star",wd:true,no:10,composite:0.71,win:"14.6%",fo:"$3.50"},
+    {horse:"Diamond Model",no:16,composite:0.65,win:"8.0%",fo:"$6.00"},
+    {horse:"Free And Fast",no:8,composite:0.64,win:"7.2%",fo:"$11.00"},
+  ]},
+  {venue:"Randwick", race:"Race 4", dist:"1100m", cls:"Bm72", going:"Heavy", top:{horse:"Jarrito C&D", no:7, jockey:"Rachel King", composite:0.63, win:"9.1%", fo:"$3.70", rating:"🎲 Roughie"}, rest:[
+    {horse:"Escargoes",wd:true,no:5,composite:0.77,win:"37.1%",fo:"$2.35"},
+    {horse:"Zoufame",wd:true,no:4,composite:0.74,win:"27.5%",fo:"$1.85"},
+    {horse:"Sir Les",wd:true,no:3,composite:0.68,win:"15.1%",fo:"$2.70"},
+    {horse:"Benevac",no:1,composite:0.57,win:"5.0%",fo:"$4.60"},
+  ]},
+  {venue:"Randwick", race:"Race 5", dist:"1800m", cls:"Bm78", going:"Heavy", top:{horse:"All Kinds Of Folk", no:5, jockey:"Kerrin Mcevoy", composite:0.66, win:"24.9%", fo:"$2.60", rating:"⭐ Strong chance"}, rest:[
+    {horse:"The Iron Star",wd:true,no:10,composite:0.61,win:"15.1%",fo:"$7.50"},
+    {horse:"Ivy Legend",wd:true,no:11,composite:0.60,win:"13.7%",fo:"$5.50"},
+    {horse:"Deal N' Dash",no:8,composite:0.58,win:"11.2%",fo:"$4.60"},
+    {horse:"Celebrity",wd:true,no:7,composite:0.57,win:"10.1%",fo:"$18.00"},
+  ]},
+  {venue:"Randwick", race:"Race 6", dist:"1000m", cls:"Bm78", going:"Heavy", top:{horse:"Power Of The Brave C&D", no:1, jockey:"Shannen Llewellyn (a3)", composite:0.70, win:"25.6%", fo:"$11.00", rating:"⭐ Strong chance"}, rest:[
+    {horse:"Prima Bella C&D",no:4,composite:0.70,win:"25.6%",fo:"$6.50"},
+    {horse:"Sociable",no:9,composite:0.66,win:"17.2%",fo:"$8.00"},
+    {horse:"Engine Room",no:5,composite:0.60,win:"9.4%",fo:"$8.50"},
+    {horse:"Petticoat",wd:true,no:3,composite:0.56,win:"6.3%",fo:"$14.00"},
+  ]},
+  {venue:"Randwick", race:"Race 7", dist:"1800m", cls:"Bm88", going:"Heavy", top:{horse:"Tazima C&D", no:4, jockey:"Siena Grima (a2)", composite:0.79, win:"44.6%", fo:"$3.70", rating:"⭐ Strong chance"}, rest:[
+    {horse:"Rotagilla C&D",no:6,composite:0.70,win:"18.1%",fo:"$3.70"},
+    {horse:"Boniface",no:9,composite:0.64,win:"10.0%",fo:"$8.50"},
+    {horse:"Sacrify",wd:true,no:15,composite:0.61,win:"7.4%",fo:"$13.00"},
+    {horse:"Anythink Goes",no:12,composite:0.58,win:"5.5%",fo:"$18.00"},
+  ]},
+  {venue:"Randwick", race:"Race 8", dist:"1600m", cls:"Bm78", going:"Heavy", top:{horse:"Seven's", no:8, jockey:"Sam Clipperton", composite:0.66, win:"15.3%", fo:"$8.50", rating:"🎯 Place hope"}, rest:[
+    {horse:"Concordia Wind",wd:true,no:11,composite:0.71,win:"25.2%",fo:"$6.00"},
+    {horse:"Cold Brew",no:3,composite:0.63,win:"11.3%",fo:"$9.50"},
+    {horse:"Bravissima C&D",no:5,composite:0.60,win:"8.4%",fo:"$11.00"},
+    {horse:"I've Bean Tryin'",wd:true,no:13,composite:0.60,win:"8.4%",fo:"$8.00"},
+  ]},
+  {venue:"Randwick", race:"Race 9", dist:"1400m", cls:"Bm88", going:"Heavy", top:{horse:"Lugh", no:2, jockey:"Siena Grima (a2)", composite:0.72, win:"27.9%", fo:"$4.60", rating:"⭐ Strong chance"}, rest:[
+    {horse:"Emirate",wd:true,no:9,composite:0.67,win:"16.9%",fo:"$9.00"},
+    {horse:"Watcha Matey",no:11,composite:0.64,win:"12.5%",fo:"$4.50"},
+    {horse:"Narbold",no:13,composite:0.62,win:"10.3%",fo:"$11.00"},
+    {horse:"It's A Knockout",no:14,composite:0.58,win:"6.9%",fo:"$10.00"},
+  ]},
+  {venue:"Randwick", race:"Race 10", dist:"1400m", cls:"Bm78", going:"Heavy", top:{horse:"Pierata's Gem", no:12, jockey:"Mollie Fitzgerald (a3)", composite:0.64, win:"15.1%", fo:"$3.50", rating:"🎯 Place hope"}, rest:[
+    {horse:"Bella Corazon",wd:true,no:4,composite:0.67,win:"20.4%",fo:"$8.00"},
+    {horse:"Aye Aye Captain",wd:true,no:3,composite:0.66,win:"18.5%",fo:"$21.00"},
+    {horse:"Swiftie Harriet",no:2,composite:0.61,win:"11.2%",fo:"$8.50"},
+    {horse:"Super Nui",no:5,composite:0.59,win:"9.2%",fo:"$16.00"},
+  ]},
+  {venue:"Caulfield", race:"Race 1", dist:"1100m", cls:"G3", going:"Soft", top:{horse:"Orchid Sky", no:12, jockey:"Craig Newitt", composite:0.55, win:"14.7%", fo:"$5.50", rating:"🎯 Place hope"}, rest:[
+    {horse:"Angels Fury",wd:true,no:2,composite:0.66,win:"44.3%",fo:"$1.70"},
+    {horse:"Ruby Guild",no:14,composite:0.54,win:"13.3%",fo:"$5.50"},
+    {horse:"Eilish",no:9,composite:0.51,win:"9.9%",fo:"$16.00"},
+    {horse:"Egyptian Dancer",no:6,composite:0.50,win:"8.9%",fo:"$8.50"},
+  ]},
+  {venue:"Caulfield", race:"Race 2", dist:"1100m", cls:"Bm78", going:"Soft", top:{horse:"Stealth Of Night", no:8, jockey:"Lachlan Neindorf", composite:0.78, win:"37.4%", fo:"$3.50", rating:"⭐ Strong chance"}, rest:[
+    {horse:"Zouper Fund",wd:true,no:2,composite:0.66,win:"11.3%",fo:"$5.00"},
+    {horse:"Markdel",wd:true,no:4,composite:0.63,win:"8.3%",fo:"$5.00"},
+    {horse:"Electric Star C&D",no:15,composite:0.63,win:"8.3%",fo:"$8.50"},
+    {horse:"Luna Cat C&D",no:6,composite:0.62,win:"7.5%",fo:"$9.00"},
+  ]},
+  {venue:"Caulfield", race:"Race 3", dist:"1400m", cls:"Group 2", going:"Soft", top:{horse:"Like A Drifter", no:1, jockey:"Tala Hutchinson (a3)", composite:0.78, win:"36.5%", fo:"$1.60", rating:"⭐ Strong chance"}, rest:[
+    {horse:"Cruiserweight",no:5,composite:0.71,win:"18.1%",fo:"$1.60"},
+    {horse:"Celtics",no:4,composite:0.68,win:"13.4%",fo:"$4.60"},
+    {horse:"King Maywin",wd:true,no:8,composite:0.61,win:"6.7%",fo:"$6.00"},
+    {horse:"Shares",wd:true,no:11,composite:0.59,win:"5.5%",fo:"$21.00"},
+  ]},
+  {venue:"Caulfield", race:"Race 4", dist:"1100m", cls:"Maiden", going:"Soft", top:{horse:"Cavalry Girl C&D", no:1, jockey:"Craig Williams", composite:0.61, win:"8.5%", fo:"$5.00", rating:"🎲 Roughie"}, rest:[
+    {horse:"Lady Verity",wd:true,no:6,composite:0.77,win:"42.0%",fo:"$2.00"},
+    {horse:"Restless Wind",wd:true,no:7,composite:0.66,win:"14.0%",fo:"$4.00"},
+    {horse:"Our Wynd Chymes",wd:true,no:8,composite:0.64,win:"11.5%",fo:"$3.90"},
+    {horse:"Miss Lola",wd:true,no:10,composite:0.64,win:"11.5%",fo:"$2.90"},
+  ]},
+  {venue:"Caulfield", race:"Race 5", dist:"2000m", cls:"Bm84", going:"Soft", top:{horse:"Sir Atlas C", no:2, jockey:"Jamie Mott", composite:0.64, win:"14.3%", fo:"$7.50", rating:"🎯 Place hope"}, rest:[
+    {horse:"Amleto",wd:true,no:12,composite:0.75,win:"43.0%",fo:"$4.80"},
+    {horse:"Stirrup Cup",wd:true,no:7,composite:0.64,win:"14.3%",fo:"$4.00"},
+    {horse:"Belle Savoir C&D",no:10,composite:0.58,win:"7.8%",fo:"$20.00"},
+    {horse:"Prince Eric",no:9,composite:0.53,win:"4.8%",fo:"$17.00"},
+  ]},
+  {venue:"Caulfield", race:"Race 6", dist:"2000m", cls:"Open", going:"Soft", top:{horse:"Paddypie", no:7, jockey:"Jake Noonan", composite:0.67, win:"15.8%", fo:"$3.00", rating:"🎯 Place hope"}, rest:[
+    {horse:"Decalogue",wd:true,no:1,composite:0.70,win:"21.3%",fo:"$3.40"},
+    {horse:"Orlova",wd:true,no:6,composite:0.70,win:"21.3%",fo:"$1.60"},
+    {horse:"Harbour Town",no:4,composite:0.60,win:"7.8%",fo:"$16.00"},
+    {horse:"Ichnusa",no:10,composite:0.60,win:"7.8%",fo:"$3.40"},
+  ]},
+  {venue:"Caulfield", race:"Race 7", dist:"1100m", cls:"G3", going:"Soft", top:{horse:"Bazaball Rewarded C&D", no:11, jockey:"Jamie Mott", composite:0.66, win:"19.0%", fo:"$4.40", rating:"🎯 Place hope"}, rest:[
+    {horse:"Sir Now",wd:true,no:7,composite:0.67,win:"21.0%",fo:"$2.25"},
+    {horse:"Winnasedge C&D",no:8,composite:0.61,win:"11.5%",fo:"$4.40"},
+    {horse:"Miraval Rose C&D",no:10,composite:0.61,win:"11.5%",fo:"$2.35"},
+    {horse:"Bustling",no:2,composite:0.59,win:"9.4%",fo:"$4.20"},
+  ]},
+  {venue:"Caulfield", race:"Race 8", dist:"1400m", cls:"Bm100", going:"Soft", top:{horse:"Coeur Volante C&D", no:3, jockey:"Jackson Radley (a2)", composite:0.62, win:"9.7%", fo:"$6.50", rating:"🎲 Roughie"}, rest:[
+    {horse:"Big Swinger",wd:true,no:6,composite:0.75,win:"35.5%",fo:"$2.40"},
+    {horse:"Ten Commandments",wd:true,no:10,composite:0.73,win:"29.1%",fo:"$6.50"},
+    {horse:"Rise At Dawn",no:2,composite:0.55,win:"4.8%",fo:"$3.60"},
+    {horse:"Magnaspin C",no:4,composite:0.55,win:"4.8%",fo:"$41.00"},
+  ]},
+  {venue:"Caulfield", race:"Race 9", dist:"1700m", cls:"Bm84", going:"Soft", top:{horse:"First Chorus C&D", no:9, jockey:"Jamie Mott", composite:0.71, win:"23.1%", fo:"$6.50", rating:"⭐ Strong chance"}, rest:[
+    {horse:"Makdane C&D",no:4,composite:0.67,win:"15.5%",fo:"$2.90"},
+    {horse:"Snoopy Now",wd:true,no:1,composite:0.62,win:"9.4%",fo:"$4.40"},
+    {horse:"Yam C",no:10,composite:0.62,win:"9.4%",fo:"$7.50"},
+    {horse:"Fearless Freddy",wd:true,no:13,composite:0.60,win:"7.7%",fo:"$4.80"},
+  ]},
+];
+
+const grid = document.getElementById('grid');
+grid.innerHTML = races.map(r => `
+  <div class="card">
+    <div class="card-header">
+      <span class="venue">${r.venue}</span>
+      <span>${r.race} · ${r.dist} · ${r.cls} · ${r.going}</span>
+    </div>
+    <div class="tile">
+      <div class="label">Top Composite Score</div>
+      <div class="horse-name">#${r.top.no} ${r.top.horse}</div>
+      <div class="meta-row"><span>${r.top.jockey}</span><span class="score">${r.top.composite.toFixed(2)}</span></div>
+      <div class="meta-row"><span>Win ${r.top.win}</span><span>FO ${r.top.fo}</span></div>
+      <div class="rating">${r.top.rating}</div>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>Horse</th><th>Score</th><th>Win%</th></tr></thead>
+      <tbody>
+        ${r.rest.slice(0,4).map(h => `<tr class="${h.wd?'wd':''}"><td>${h.no}</td><td>${h.horse}${h.wd?' (WD)':''}</td><td>${h.composite.toFixed(2)}</td><td>${h.win}</td></tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+`).join('');
+</script>
+</body>
+</html>
