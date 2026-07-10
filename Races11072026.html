@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Race Day Report — Full Detail — 10–11 July 2026</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    margin: 0;
+    padding: 16px 22px 40px;
+    background: #0b0f14;
+    color: #e6e9ec;
+  }
+  h1 { font-size: 21px; margin: 0 0 2px 0; color: #fff; }
+  .subtitle { font-size: 12px; color: #8a94a0; margin-bottom: 14px; }
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid #232b34;
+    padding-bottom: 10px;
+    position: sticky;
+    top: 0;
+    background: #0b0f14;
+    z-index: 5;
+  }
+  .tab-btn {
+    background: #131920;
+    border: 1px solid #232b34;
+    color: #b7c2cc;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 11.5px;
+    cursor: pointer;
+  }
+  .tab-btn.active { background: #1d3b2f; border-color: #2e6b4c; color: #fff; }
+  .tab-btn:hover { border-color: #3a4552; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .tile {
+    background: linear-gradient(135deg, #1d3b2f, #16281f);
+    border: 1px solid #2e6b4c;
+    border-radius: 7px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    max-width: 560px;
+  }
+  .tile .label { font-size: 9.5px; letter-spacing: 0.07em; text-transform: uppercase; color: #6fd39a; margin-bottom: 3px; }
+  .tile .horse-name { font-size: 19px; font-weight: 700; color: #fff; }
+  .tile .meta-row { display: flex; justify-content: space-between; font-size: 12px; color: #b7c2cc; margin-top: 6px; gap: 14px; }
+  .tile .score { font-size: 18px; font-weight: 800; color: #6fd39a; }
+  .tile .rating { font-size: 11px; color: #cfe8d9; margin-top: 5px; }
+  .race-header { font-size: 13px; color: #cfd6dd; margin-bottom: 10px; }
+  .race-header b { color: #fff; font-size: 15px; }
+  .race-header span { margin-right: 12px; color: #8a94a0; }
+  h2.section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #6fd39a; margin: 18px 0 6px; border-bottom: 1px solid #232b34; padding-bottom: 4px; }
+  .horse-group-title { font-size: 12px; font-weight: 700; color: #fff; margin: 12px 0 4px; }
+  .table-scroll { overflow-x: auto; margin-bottom: 10px; border: 1px solid #1e252d; border-radius: 6px; }
+  table.rtable { width: 100%; border-collapse: collapse; font-size: 10.8px; }
+  table.rtable th {
+    background: #131920;
+    color: #6fd39a;
+    text-align: left;
+    padding: 6px 9px;
+    border-bottom: 1px solid #2e6b4c;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+  }
+  table.rtable td {
+    padding: 5px 9px;
+    border-bottom: 1px solid #171d24;
+    color: #b7c2cc;
+    white-space: nowrap;
+  }
+  table.rtable td.wrap { white-space: normal; min-width: 140px; }
+  table.rtable tbody tr:nth-child(even) { background: #10151c; }
+  table.rtable tr.wd-row td { opacity: 0.5; text-decoration: line-through; }
+  footer { margin-top: 20px; font-size: 10px; color: #5a6472; }
+</style>
+</head>
+<body>
+  <h1>Race Day Report — Randwick &amp; Caulfield — Full Detail</h1>
+  <div class="subtitle">10–11 July 2026 · 19 races · Complete analysis output from Racing Form Predictor for every uploaded spreadsheet, presented as tables · Top tile excludes withdrawn (WD) runners</div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="panels"></div>
+
+  <footer>Generated from Ladbrokes race-card spreadsheets, one file per race, uploaded individually via Racing Form Predictor (localhost:8080).</footer>
+
+<script>
+const races = window.__RACES__ = [];
+function addRace(r){ races.push(r); }
+</script>
+<script src="races_data.js"></script>
+<script>
+const tabsEl = document.getElementById('tabs');
+const panelsEl = document.getElementById('panels');
+
+// ---------- Runner table (mainTable) parsing ----------
+function parseRunnerEntries(mainTable) {
+  const lines = mainTable.split('\n').map(l => l.trim()).filter(l => l.length);
+  const entries = [];
+  let i = 1; // skip column-header line
+  while (i < lines.length) {
+    const posLine = lines[i];
+    if (/^(🥇|🥈|🥉|\d+)$/.test(posLine) && i + 4 < lines.length) {
+      const horseLineRaw = lines[i+1];
+      const runsLine = lines[i+2];
+      const statsLine = lines[i+3];
+      const compLine = lines[i+4];
+      const ratingLine = lines[i+5] || '';
+      if (/runs? analysed/.test(runsLine) && /^[\d.]+$/.test(compLine)) {
+        let flag = '';
+        let horse = horseLineRaw;
+        for (const suf of [' C&D', ' WD', ' C']) {
+          if (horse.endsWith(suf)) { flag = suf.trim(); horse = horse.slice(0, -suf.length); break; }
+        }
+        const statsMatch = statsLine.match(/^(\d+)\s+(.+?)\s+([\d.]+(?:\s+[\d.]+){8})$/);
+        const no = statsMatch ? statsMatch[1] : '';
+        const jockey = statsMatch ? statsMatch[2] : '';
+        const factors = statsMatch ? statsMatch[3].split(/\s+/) : ['','','','','','','','',''];
+        const runsMatch = runsLine.match(/^(\d+)/);
+        const runsAnalysed = runsMatch ? runsMatch[1] : '';
+        const ratingMatch = ratingLine.match(/^(.+?)\s+(\$[\d.,]+|—)\s+(.+)$/);
+        const win = ratingMatch ? ratingMatch[1] : '';
+        const fo = ratingMatch ? ratingMatch[2] : '';
+        const rating = ratingMatch ? ratingMatch[3] : ratingLine;
+        entries.push({ pos: posLine, horse, flag, no, jockey, runsAnalysed, factors, composite: compLine, win, fo, rating });
+        i += 6;
+        continue;
+      }
+    }
+    i++;
+  }
+  return entries;
+}
+
+function topPick(entries) {
+  const nonWd = entries.filter(e => e.flag !== 'WD' && e.composite !== '0.00');
+  return nonWd[0] || entries[0] || null;
+}
+
+function renderRunnerTable(mainTable) {
+  const entries = parseRunnerEntries(mainTable);
+  const factorHeads = ['Form','Venue','Track','Dist','Jkry','Wgt','Time','RS','Mkt'];
+  const trs = entries.map(e => {
+    const factorTds = e.factors.map(f => `<td>${f}</td>`).join('');
+    return `<tr class="${e.flag==='WD'?'wd-row':''}"><td>${e.pos}</td><td class="wrap">${e.horse}</td><td>${e.flag}</td><td>${e.no}</td><td class="wrap">${e.jockey}</td><td>${e.runsAnalysed}</td>${factorTds}<td><b>${e.composite}</b></td><td>${e.win}</td><td>${e.fo}</td><td class="wrap">${e.rating}</td></tr>`;
+  });
+  const headers = ['Pos','Horse','Flag','No.','Jockey','Runs'].concat(factorHeads).concat(['Composite','Win %','FO','Rating']);
+  return renderSimpleTable(headers, trs);
+}
+
+// ---------- Detail-section parsing ----------
+function parseDetailSections(detail) {
+  const lines = detail.split('\n');
+  let winHeader, fastestHeader, projHeader, f3Header, runHistHeader;
+  lines.forEach((l, i) => {
+    if (winHeader===undefined && /RUNNERS? WITH A WIN AT THIS DISTANCE/.test(l)) winHeader = i;
+    if (fastestHeader===undefined && /^FASTEST AT THIS DISTANCE/.test(l)) fastestHeader = i;
+    if (projHeader===undefined && /^PROJECTED TIME AT THIS DISTANCE/.test(l)) projHeader = i;
+    if (f3Header===undefined && /^FASTEST 3 BY DISTANCE/.test(l)) f3Header = i;
+    if (runHistHeader===undefined && /^FULL RUN HISTORY/.test(l)) runHistHeader = i;
+  });
+  function collectRows(startIdx, stopPattern) {
+    const rows = [];
+    if (startIdx === undefined) return rows;
+    for (let i = startIdx; i < lines.length; i++) {
+      const l = lines[i].trim();
+      if (!l) continue;
+      if (stopPattern.test(l)) break;
+      if (l.startsWith('#')) continue;
+      rows.push(l);
+    }
+    return rows;
+  }
+  const winRows = collectRows(winHeader!==undefined?winHeader+1:undefined, /^Distance tolerance/);
+  const fastestRows = collectRows(fastestHeader!==undefined?fastestHeader+1:undefined, /^Closest run/);
+  const projRows = collectRows(projHeader!==undefined?projHeader+1:undefined, /^Horses with no run/);
+  const f3Rows = collectRows(f3Header!==undefined?f3Header+1:undefined, /^\* Time normalised/);
+
+  const runHistory = [];
+  if (runHistHeader !== undefined) {
+    let current = null;
+    for (let i = runHistHeader+1; i < lines.length; i++) {
+      const l = lines[i].trim();
+      if (!l) continue;
+      const m = l.match(/^(.+?)\s+\((\d+)\s+runs?\):$/);
+      if (m) {
+        current = { horse: m[1], runs: m[2], rows: [] };
+        runHistory.push(current);
+      } else if (current) {
+        current.rows.push(l);
+      }
+    }
+  }
+  return { winRows, fastestRows, projRows, f3Rows, runHistory };
+}
+
+function parseWinRow(row) {
+  const m = row.match(/^(🥇|🥈|🥉|\d+)\s+(.+?)\s+(\d+)\s+(\d+)\s+(\d+)%\s+(\d{1,2}\s+\w+\s+\d{4})\s+(.+)$/);
+  if (!m) return null;
+  return { pos:m[1], horse:m[2], wins:m[3], runs:m[4], strikeRate:m[5]+'%', lastWin:m[6], venue:m[7] };
+}
+function parseFastestRow(row) {
+  const m = row.match(/^(🥇|🥈|🥉|\d+)\s+(.+?)\s+(\d+)\s+([\d:.]+)\s+([\d:.]+)\s+(\w+)\s+(\d+)\s+(\d+m)\s+(\d{1,2}\s+\w+\s+\d{4})$/);
+  if (!m) return null;
+  return { pos:m[1], horse:m[2], barrier:m[3], rawTime:m[4], normTime:m[5], going:m[6]+' '+m[7], dist:m[8], date:m[9] };
+}
+function parseProjRow(row) {
+  const m = row.match(/^(🥇|🥈|🥉|\d+)\s+(.+?)\s+(\d+)\s+([\d:.]+)\s+(▲|▼)\s+(\d+m)\s+([\d:.]+)\s+(\w+)\s+(\d+)\s+(\d{1,2}\s+\w+\s+\d{4})$/);
+  if (!m) return null;
+  return { pos:m[1], horse:m[2], barrier:m[3], projTime:m[4], arrow:m[5], sourceDist:m[6], sourceTime:m[7], going:m[8]+' '+m[9], date:m[10] };
+}
+function parseF3Row(row) {
+  const header = row.match(/^(\d+m)\s+—\s+(\d+)\s+of\s+(\d+)\s+runners with data:\s*(.*)$/);
+  if (!header) return null;
+  const dist = header[1], have = header[2], total = header[3];
+  const rest = header[4];
+  const entries = [];
+  const re = /(🥇|🥈|🥉)\s+(.+?)\s+([\d:.]+)\s+\(([\d.]+)\s+s\/100m,\s+(\d+)×\)/g;
+  let mm;
+  while ((mm = re.exec(rest)) !== null) {
+    entries.push({ pos:mm[1], horse:mm[2], time:mm[3], rating:mm[4], runs:mm[5] });
+  }
+  return { dist, have, total, entries };
+}
+function parseRunRow(row) {
+  const dm = row.match(/^(\d{4}-\d{2}-\d{2})\s+(.*)$/);
+  if (!dm) return { raw: row };
+  const date = dm[1];
+  let rest = dm[2];
+  let time='', norm='', spell='';
+  const tm = rest.match(/^(.*?),?\s*time\s+([\d:.]+)\s+\(norm\s+([\d:.—]+)(?:,\s*spell\s+(\d+)d)?\)\s*$/);
+  if (tm) { rest = tm[1].trim(); time = tm[2]; norm = tm[3]; spell = tm[4]||''; }
+  let venue='', dist='', mid=rest;
+  const vd = rest.match(/^(.+?)\s+(\d+)\s+(.*)$/);
+  if (vd) { venue = vd[1]; dist = vd[2]; mid = vd[3]; }
+  let cls='', barrier='', jockey='', wgt='', odds='', result=mid;
+  const pm = mid.match(/^(.+?)\s+barrier(\d+|—)\s+(.+?)\s+([\d.]+|—)\s+(\$[\d.,]+|—)\s+(.+)$/);
+  if (pm) {
+    cls=pm[1]; barrier=pm[2]; jockey=pm[3]; wgt=pm[4]; odds=pm[5]; result=pm[6];
+  } else {
+    const fm = mid.match(/^(Trial)\s+(\S+)\s+—\s+(.+?)\s+(—)\s+(—)\s+(.+)$/);
+    if (fm) { cls=fm[1]+' '+fm[2]; barrier='—'; jockey=fm[3]; wgt=fm[4]; odds=fm[5]; result=fm[6]; }
+    else { result = mid; }
+  }
+  return { date, venue, dist, cls, barrier, jockey, wgt, odds, result, time, norm, spell };
+}
+
+function renderSimpleTable(headers, rowsHtml) {
+  if (!rowsHtml.length) return '';
+  return '<div class="table-scroll"><table class="rtable"><thead><tr>' +
+    headers.map(h=>`<th>${h}</th>`).join('') + '</tr></thead><tbody>' +
+    rowsHtml.join('') + '</tbody></table></div>';
+}
+function renderWinTable(rows) {
+  const parsed = rows.map(parseWinRow).filter(Boolean);
+  const trs = parsed.map(r => `<tr><td>${r.pos}</td><td class="wrap">${r.horse}</td><td>${r.wins}</td><td>${r.runs}</td><td>${r.strikeRate}</td><td>${r.lastWin}</td><td class="wrap">${r.venue}</td></tr>`);
+  return renderSimpleTable(['Pos','Horse','Wins','Runs','Strike Rate','Last Win','Venue'], trs);
+}
+function renderFastestTable(rows) {
+  const parsed = rows.map(parseFastestRow).filter(Boolean);
+  const trs = parsed.map(r => `<tr><td>${r.pos}</td><td class="wrap">${r.horse}</td><td>${r.barrier}</td><td>${r.rawTime}</td><td>${r.normTime}</td><td>${r.going}</td><td>${r.dist}</td><td>${r.date}</td></tr>`);
+  return renderSimpleTable(['Pos','Horse','Barrier','Raw Time','Norm Time','Going','Dist','Date'], trs);
+}
+function renderProjTable(rows) {
+  const parsed = rows.map(parseProjRow).filter(Boolean);
+  const trs = parsed.map(r => `<tr><td>${r.pos}</td><td class="wrap">${r.horse}</td><td>${r.barrier}</td><td>${r.projTime} ${r.arrow}</td><td>${r.sourceDist}</td><td>${r.sourceTime}</td><td>${r.going}</td><td>${r.date}</td></tr>`);
+  return renderSimpleTable(['Pos','Horse','Barrier','Projected Time','Source Dist','Source Time','Going','Date'], trs);
+}
+function renderF3Table(rows) {
+  const parsed = rows.map(parseF3Row).filter(Boolean);
+  const trs = [];
+  parsed.forEach(d => {
+    d.entries.forEach(e => {
+      trs.push(`<tr><td>${d.dist}</td><td>${d.have}/${d.total}</td><td>${e.pos}</td><td class="wrap">${e.horse}</td><td>${e.time}</td><td>${e.rating} s/100m</td><td>${e.runs}×</td></tr>`);
+    });
+  });
+  return renderSimpleTable(['Distance','Data Coverage','Pos','Horse','Best Time','Rating','Runs'], trs);
+}
+function renderRunHistory(runHistory) {
+  if (!runHistory.length) return '';
+  let html = '';
+  runHistory.forEach(h => {
+    html += `<div class="horse-group-title">${h.horse} (${h.runs} runs)</div>`;
+    const trs = h.rows.map(row => {
+      const r = parseRunRow(row);
+      if (r.raw !== undefined) {
+        return `<tr><td colspan="12" class="wrap">${r.raw}</td></tr>`;
+      }
+      return `<tr><td>${r.date||''}</td><td class="wrap">${r.venue||''}</td><td>${r.dist||''}</td><td class="wrap">${r.cls||''}</td><td>${r.barrier||''}</td><td class="wrap">${r.jockey||''}</td><td>${r.wgt||''}</td><td>${r.odds||''}</td><td class="wrap">${r.result||''}</td><td>${r.time||''}</td><td>${r.norm||''}</td><td>${r.spell||''}</td></tr>`;
+    });
+    html += renderSimpleTable(['Date','Venue','Dist','Class/Going','Barrier','Jockey','Wgt','Odds','Result','Time','Norm','Spell'], trs);
+  });
+  return html;
+}
+
+// ---------- Build tabs & panels ----------
+races.forEach((r, idx) => {
+  const tab = document.createElement('button');
+  tab.className = 'tab-btn' + (idx===0 ? ' active' : '');
+  tab.textContent = `${r.venue} R${r.raceNo}`;
+  tab.onclick = () => selectTab(idx);
+  tabsEl.appendChild(tab);
+
+  const panel = document.createElement('div');
+  panel.className = 'panel' + (idx===0 ? ' active' : '');
+  panel.id = 'panel-' + idx;
+
+  const entries = parseRunnerEntries(r.mainTable);
+  const top = topPick(entries);
+  const sections = parseDetailSections(r.detail);
+
+  panel.innerHTML = `
+    <div class="race-header">
+      <b>${r.venue} Race ${r.raceNo}</b>
+      <span>${r.dist}</span><span>${r.cls}</span><span>${r.going}</span><span>${r.date}</span><span>${r.horses} horses · ${r.pastRuns} past runs</span>
+    </div>
+    ${top ? `
+    <div class="tile">
+      <div class="label">Top Composite Score${top.flag==='WD' ? ' (best non-WD)' : ''}</div>
+      <div class="horse-name">#${top.no} ${top.horse}${top.flag && top.flag!=='WD' ? ` <span style="font-size:11px;color:#8a94a0;">(${top.flag})</span>` : ''}</div>
+      <div class="meta-row"><span>${top.jockey}</span><span class="score">${top.composite}</span></div>
+      <div class="meta-row"><span>Win ${top.win}</span><span>FO ${top.fo}</span></div>
+      <div class="rating">${top.rating}</div>
+    </div>` : ''}
+    <h2 class="section-title">Full Runner Table — ranked by composite form score</h2>
+    ${renderRunnerTable(r.mainTable)}
+    ${sections.winRows.length ? '<h2 class="section-title">Runners With A Win At This Distance</h2>' + renderWinTable(sections.winRows) : ''}
+    ${sections.fastestRows.length ? '<h2 class="section-title">Fastest At This Distance</h2>' + renderFastestTable(sections.fastestRows) : ''}
+    ${sections.projRows.length ? '<h2 class="section-title">Projected Time At This Distance</h2>' + renderProjTable(sections.projRows) : ''}
+    ${sections.f3Rows.length ? '<h2 class="section-title">Fastest 3 By Distance</h2>' + renderF3Table(sections.f3Rows) : ''}
+    ${sections.runHistory.length ? '<h2 class="section-title">Full Run History</h2>' + renderRunHistory(sections.runHistory) : ''}
+  `;
+  panelsEl.appendChild(panel);
+});
+
+function selectTab(idx){
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  document.querySelectorAll('.panel').forEach((p,i) => p.classList.toggle('active', i===idx));
+}
+</script>
+</body>
+</html>
